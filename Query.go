@@ -96,12 +96,14 @@ func (r *Query) AddQueryParamFromRaw(paramName string, values []string) error {
 		return nil
 	}
 
-	if strings.HasSuffix(paramName, "_contains") {
-		qAttr.Values = values
-		qAttr.ParamName = strings.Replace(paramName, "_contains", "", 1)
-		qAttr.Operator = "contains"
-		r.Fields = append(r.Fields, qAttr)
-		return nil
+	for op := range gormDBOperations {
+		if strings.HasSuffix(paramName, "_"+op) {
+			qAttr.Values = values
+			qAttr.ParamName = strings.Replace(paramName, "_"+op, "", 1)
+			qAttr.Operator = op
+			r.Fields = append(r.Fields, qAttr)
+			return nil
+		}
 	}
 
 	return nil
