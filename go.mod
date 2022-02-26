@@ -1,4 +1,4 @@
-module github.com/go-catupiry/query_parser
+module github.com/go-catupiry/query_parser_to_db
 
 go 1.17
 

@@ -1,4 +1,4 @@
-package query_parser
+package query_parser_to_db
 
 import (
 	"net/url"

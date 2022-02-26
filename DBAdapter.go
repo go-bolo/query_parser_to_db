@@ -1,4 +1,4 @@
-package query_parser
+package query_parser_to_db
 
 // [fieldType][queryType]function
 type DBAdapter map[string]DBOperations
