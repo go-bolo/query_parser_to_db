@@ -1,10 +1,10 @@
-# Go Catupiri Query Parser to DB
+# Go Bolo Query Parser to DB
 
 Query parser with support for build database operations / params from query params.
 
 For now we only have supports for GORM queries.
 
-Examples: https://github.com/go-catupiry/query_parser_to_db_examples
+Examples: https://github.com/go-bolo/query_parser_to_db_examples
 
 ## Usage:
 
@@ -21,21 +21,21 @@ Examples: https://github.com/go-catupiry/query_parser_to_db_examples
     Email      string `json:"email"`
     Email2     string `json:"email2" filter:""`
     PrivateBio string `json:"-" filter:"-"`
-  }  
-  
+  }
+
   // In your http handler:
 
   // get a new instance of the query parser:
   q := query_parser_to_db.NewQuery(50)
   // parse url query params and its operations:
   q.ParseFromURLValues(req.URL.Query())
-  
-  // db = *gorm.DB, that will parse 
+
+  // db = *gorm.DB, that will parse
   queryInterface, _ := q.SetDatabaseQueryForModel(db, &ContentModelStub{})
-  
+
   // get the query, a *gorm.DB var
   query := queryInterface.(*gorm.DB)
-  
+
   // execute the query as any gorm query:
   records := []ContentModelStub{}
   dbResultTX := query.Find(&records)

@@ -1,13 +1,11 @@
 package query_parser_to_db
 
 import (
+	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 // [modelName][fieldName]ModelFieldTagConfig
@@ -48,11 +46,7 @@ func (r *Query) ParseFromURLValues(query url.Values) error {
 		if key == "limit" && len(param) == 1 {
 			queryLimit, err := strconv.ParseInt(param[0], 10, 64)
 			if err != nil {
-				logrus.WithFields(logrus.Fields{
-					"key":   key,
-					"param": param,
-				}).Error("NewRequestAppContext invalid query param limit")
-				continue
+				return ErrInvalidQueryOperator
 			}
 			if queryLimit > 0 && queryLimit < r.LimitMax {
 				r.Limit = queryLimit
@@ -216,7 +210,7 @@ func (r *Query) SetDatabaseQueryForModel(query interface{}, model interface{}) (
 	if modelSearchTagsCache[modelType] == nil {
 		err := parseAndCacheModel(model)
 		if err != nil {
-			return query, errors.Wrap(err, "query.SetDatabaseQueryForModel Error on parse model struct tags")
+			return query, fmt.Errorf("query parser: model parse error: %w", err)
 		}
 	}
 
