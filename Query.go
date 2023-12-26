@@ -225,8 +225,12 @@ func (r *Query) SetDatabaseQueryForModel(query interface{}, model interface{}) (
 		if p == nil {
 			continue
 		}
+		var err error
 
-		query, _ = GORMDBAdapter.Run(modelCfg[i].Type, p.Operator, p.ParamName, p.Values[0], query, r)
+		query, err = GORMDBAdapter.Run(modelCfg[i].Type, p.Operator, p.ParamName, p.Values[0], query, r)
+		if err != nil {
+			return query, fmt.Errorf("query parser: %w", err)
+		}
 	}
 
 	GORMDBAdapter["pagination"]["pager"]("", "", query, r)

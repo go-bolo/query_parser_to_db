@@ -7,7 +7,7 @@ type DBAdapter map[string]DBOperations
 
 func (r DBAdapter) Run(fieldType, operator, column, value string, dbQuery interface{}, q *Query) (interface{}, error) {
 	if r[fieldType] == nil || r[fieldType][operator] == nil {
-		return nil, nil
+		return dbQuery, nil
 	}
 
 	return r[fieldType][operator](column, strings.TrimSpace(value), dbQuery, q)
