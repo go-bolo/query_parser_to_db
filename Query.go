@@ -8,10 +8,15 @@ import (
 	"strings"
 )
 
-// [modelName][fieldName]ModelFieldTagConfig
-var modelSearchTagsCache map[string]map[string]*ModelFieldTagConfig
+const (
+	querySeparator = "__"
+)
 
-var GORMDBAdapter DBAdapter
+var (
+	// [modelName][fieldName]ModelFieldTagConfig
+	modelSearchTagsCache map[string]map[string]*ModelFieldTagConfig
+	GORMDBAdapter        DBAdapter
+)
 
 type ModelFieldTagConfig struct {
 	Param       string
@@ -82,24 +87,20 @@ func (r *Query) AddQueryParamFromRaw(paramName string, values []string) error {
 		qAttr.IsMultiple = true
 	}
 
-	if !strings.Contains(paramName, "_") {
-		qAttr.Values = values
-		qAttr.ParamName = paramName
-		qAttr.Operator = "equal"
-		r.Fields = append(r.Fields, qAttr)
-		return nil
-	}
-
 	for op := range gormDBOperations {
-		if strings.HasSuffix(paramName, "_"+op) {
+		if strings.HasSuffix(paramName, querySeparator+op) {
 			qAttr.Values = values
-			qAttr.ParamName = strings.Replace(paramName, "_"+op, "", 1)
+			qAttr.ParamName = strings.Replace(paramName, querySeparator+op, "", 1)
 			qAttr.Operator = op
 			r.Fields = append(r.Fields, qAttr)
 			return nil
 		}
 	}
 
+	qAttr.Values = values
+	qAttr.ParamName = paramName
+	qAttr.Operator = "equal"
+	r.Fields = append(r.Fields, qAttr)
 	return nil
 }
 
@@ -204,7 +205,6 @@ func (r *Query) GetOffset() int {
 }
 
 func (r *Query) SetDatabaseQueryForModel(query interface{}, model interface{}) (interface{}, error) {
-
 	modelType := reflect.TypeOf(model).String()
 
 	if modelSearchTagsCache[modelType] == nil {
@@ -228,6 +228,7 @@ func (r *Query) SetDatabaseQueryForModel(query interface{}, model interface{}) (
 		var err error
 
 		query, err = GORMDBAdapter.Run(modelCfg[i].Type, p.Operator, p.ParamName, p.Values[0], query, r)
+
 		if err != nil {
 			return query, fmt.Errorf("query parser: %w", err)
 		}
